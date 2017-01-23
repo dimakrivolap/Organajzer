@@ -1,0 +1,91 @@
+unit UnitReg;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+
+type
+  human=record
+  name:string[20];
+  password:string[20];
+  group:string[6];
+end;
+
+type
+  TFormReg = class(TForm)
+    lblLogin: TLabel;
+    lblLablePassword: TLabel;
+    edtPassword: TEdit;
+    edtpassword1: TEdit;
+    lblpassword: TLabel;
+    edtLogin: TEdit;
+    lblgroup: TLabel;
+    edtGroup: TEdit;
+    btnOK: TButton;
+    btnExit: TButton;
+    procedure btnOKClick(Sender: TObject);
+    procedure btnExitClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormReg: TFormReg;
+
+implementation
+
+uses UnitMain, UnitVhod;
+
+{$R *.dfm}
+
+
+procedure TFormReg.btnOKClick(Sender: TObject);
+var t: file of human;
+    h:human;
+begin
+  if (edtLogin.Text<>'' ) and
+  (edtPassword.Text<>'' ) and
+  (edtpassword1.Text<>'') and
+  (edtGroup.Text<>'') then
+    if edtPassword.Text=edtpassword1.Text then
+    begin
+      h.name:=edtLogin.Text;
+      h.password:=edtPassword.Text;
+      h.group:=edtGroup.Text;
+      if FileExists(FormMain.dir+edtLogin.Text) then
+        ShowMessage('Такой пользователь уже есть!')
+      else
+      begin
+        //запись в фалй нового пользователя
+        AssignFile(t,FormMain.dir+edtlogin.Text);
+        Rewrite(t);
+        write(t,h);
+        CloseFile(t);
+        //создание файла событий
+        AssignFile(t,FormMain.dir+edtlogin.Text+'events');
+        Rewrite(t);
+        CloseFile(t);
+        //создание файла будильников
+        AssignFile(t,FormMain.dir+edtlogin.Text+'alarms');
+        Rewrite(t);
+        CloseFile(t);
+        FormReg.Hide;
+      end;
+    end
+    else
+      ShowMessage('Пароли не совпадают')
+  else
+    ShowMessage('Заполните поля!');
+end;
+
+procedure TFormReg.btnExitClick(Sender: TObject);
+begin
+    formvhod.show;
+    FormReg.Hide;
+end;
+
+end.
